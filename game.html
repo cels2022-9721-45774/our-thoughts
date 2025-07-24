@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Little Thought Garden</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Our Thought Garden</h1>
+
+        <div id="loading">
+            <p>Loading game...</p>
+            <div class="spinner"></div>
+        </div>
+
+        <div id="game-area" class="hidden">
+            <p id="output">Click on the elements to discover little thoughts!</p>
+
+            <div class="thought-elements-container" id="thoughtElementsContainer">
+                <!-- Thought elements will be dynamically generated here -->
+            </div>
+
+            <div class="button-group">
+                <button id="resetButton" class="hidden">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Final Message Overlay -->
+        <div id="finalMessageOverlay" class="">
+            <p id="finalMessage"></p>
+            <button id="closeFinalMessageButton" class="hidden">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const outputElement = document.getElementById('output');
+        const resetButton = document.getElementById('resetButton');
+        const loadingElement = document.getElementById('loading');
+        const gameArea = document.getElementById('game-area');
+        const thoughtElementsContainer = document.getElementById('thoughtElementsContainer');
+        const finalMessageOverlay = document.getElementById('finalMessageOverlay');
+        const finalMessageElement = document.getElementById('finalMessage');
+        const closeFinalMessageButton = document.getElementById('closeFinalMessageButton');
+
+        // Game state variables (formerly in Python)
+        const thoughts = [
+            "Who do you love more? Me or Navene? 👀",
+            "I miss you a little extra on the days na di tayo nagkikita ☹️",
+            "I'm so proud of you. 🥺",
+            "MWA MWA MWA MWA MWA 😚",
+            "Just wanted to say I LOVEEEEEEE uu. ❤️",
+            "Uu ingat palagi, mahal! 🥹",
+            "Remember to drink water, not coffee. Because coffee is not water 🙂‍↔️",
+            "Words aren't enough to tell you how grateful I am for uu. 🥺🌷",
+            "ALWAYS EAT SA TAMANG ORAS AND BRING PAYONG WHEN UU LABAS 🍜☔"
+        ];
+        let revealedThoughtsIndices = new Set();
+        const NUM_THOUGHT_ELEMENTS = thoughts.length; // Ensure this matches the thoughts array length
+
+        // Emojis for the thought elements
+        const emojis = ['🐈‍⬛', '✨', '🌷', '🦋', '🎁', '💌', '🐞', '🍓', '☔'];
+
+        /**
+         * Initializes the game state and UI.
+         */
+        function initializeGame() {
+            outputElement.textContent = "Click on the elements to discover little thoughts!";
+            revealedThoughtsIndices.clear(); // Clear any previously revealed thoughts
+            createThoughtElements();
+            resetButton.classList.add('hidden');
+            hideFinalMessageOverlay();
+
+            // Hide loading, show game area
+            loadingElement.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+        }
+
+        /**
+         * Dynamically creates the thought elements and appends them to the container.
+         */
+        function createThoughtElements() {
+            thoughtElementsContainer.innerHTML = ''; // Clear existing elements
+            for (let i = 0; i < NUM_THOUGHT_ELEMENTS; i++) {
+                const element = document.createElement('div');
+                element.classList.add('thought-element');
+                element.id = `thought-element-${i}`;
+                element.innerHTML = `<span class="emoji">${emojis[i % emojis.length]}</span>`; // Cycle through emojis
+                element.dataset.index = i; // Store index
+                element.addEventListener('click', handleThoughtClick);
+                thoughtElementsContainer.appendChild(element);
+            }
+        }
+
+        /**
+         * Handles clicks on the thought elements.
+         * Retrieves the message and updates the UI.
+         * @param {Event} event - The click event.
+         */
+        function handleThoughtClick(event) {
+            const element = event.currentTarget;
+            const index = parseInt(element.dataset.index);
+
+            // Check if already revealed
+            if (revealedThoughtsIndices.has(index)) {
+                outputElement.textContent = "You've already uncovered this thought!";
+                return;
+            }
+
+            // Reveal the thought
+            revealedThoughtsIndices.add(index);
+            outputElement.textContent = thoughts[index];
+            element.classList.add('revealed');
+
+            // Check if all thoughts are revealed
+            if (revealedThoughtsIndices.size === NUM_THOUGHT_ELEMENTS) {
+                setTimeout(() => {
+                    showFinalMessageOverlay(getFinalMessage());
+                }, 1000); // Small delay before showing final message
+                resetButton.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Returns the final message.
+         * @returns {string} The final message.
+         */
+        function getFinalMessage() {
+            return "And finally, know that I'm always, always thinking of you. Miss na miss na kita 🥹";
+        }
+
+        /**
+         * Shows the final message overlay.
+         * @param {string} message - The final message to display.
+         */
+        function showFinalMessageOverlay(message) {
+            finalMessageElement.textContent = message;
+            finalMessageOverlay.classList.add('show');
+            closeFinalMessageButton.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the final message overlay.
+         */
+        function hideFinalMessageOverlay() {
+            finalMessageOverlay.classList.remove('show');
+            closeFinalMessageButton.classList.add('hidden');
+        }
+
+        /**
+         * Resets the game to its initial state.
+         */
+        function resetGame() {
+            initializeGame(); // Re-initialize to reset everything
+        }
+
+        // Event Listeners
+        resetButton.addEventListener('click', resetGame);
+        closeFinalMessageButton.addEventListener('click', hideFinalMessageOverlay);
+
+        // Initial game setup when the page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>
