@@ -1,12 +1,322 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Little Thought Garden</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Pacifico&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Pacifico&display=swap"
+        rel="stylesheet">
+
+
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #d3c1ff, #e0f7fa);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            /* changed from center to allow scroll */
+            min-height: 100dvh;
+            /* mobile-friendly viewport height */
+            color: #4a4a4a;
+            overflow: auto;
+            /* changed from hidden to allow scroll */
+        }
+
+
+        /* Game Container */
+        .game-container {
+            background-color: #ffffff;
+            padding: 2.5rem;
+            border-radius: 20px;
+            /* More rounded */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            /* Deeper shadow */
+            text-align: center;
+            max-width: 700px;
+            width: 90%;
+            border: 1px solid #f0f0f0;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            max-height: 100%;
+            overflow-y: auto;
+            margin: auto;
+            /* Keep elements inside */
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            /* A cute, script font for the title */
+            font-size: 3.5rem;
+            /* Larger, more prominent title */
+            color: #8858ff;
+            /* Deep pink */
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+            /* Pacifico is naturally lighter */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Output message area */
+        #output {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffebee;
+            /* Very light pink */
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            border: 1px solid #ffcdd2;
+            color: #8858ff;
+            /* Darker pink for text */
+            font-weight: 600;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Thought Elements Container */
+        .thought-elements-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            /* Flexible grid for elements */
+            gap: 20px;
+            /* Space between elements */
+            margin: 3rem auto;
+            max-width: 600px;
+            padding: 10px;
+            position: relative;
+            /* For absolute positioning if needed */
+        }
+
+        .thought-element {
+            width: 100px;
+            height: 100px;
+            background-color: #ff8a80;
+            /* Cute base color */
+            border-radius: 50%;
+            /* Circle shape */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            /* Icon/emoji size */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            color: white;
+            /* For emoji/icon color */
+            border: 3px solid #e53935;
+            /* Matching border */
+            user-select: none;
+            /* Prevent text selection */
+        }
+
+        .thought-element:hover:not(.revealed) {
+            transform: scale(1.08) rotate(3deg);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background-color: #ff5252;
+            /* Brighter on hover */
+        }
+
+        .thought-element:active:not(.revealed) {
+            transform: scale(1.0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .thought-element.revealed {
+            background-color: #c8e6c9;
+            /* Light green when revealed */
+            border-color: #81c784;
+            cursor: default;
+            opacity: 0.7;
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .thought-element .emoji {
+            transition: transform 0.3s ease;
+        }
+
+        .thought-element.revealed .emoji {
+            transform: scale(0.8);
+            /* Shrink emoji slightly when revealed */
+        }
+
+        /* Final Message Overlay */
+        #finalMessageOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            border-radius: 20px;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        #finalMessageOverlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #finalMessage {
+            font-family: 'Pacifico', cursive;
+            font-size: 2.8rem;
+            color: #d81b60;
+            margin-bottom: 2rem;
+            line-height: 1.3;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            /* More space between buttons */
+            margin-top: 2rem;
+        }
+
+        button {
+            padding: 0.9rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            /* More rounded buttons */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(145deg, #ff4081, #e91e63);
+            /* Pink gradient */
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #e91e63, #c2185b);
+            /* Darker pink on hover */
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #resetButton {
+            background: linear-gradient(145deg, #90a4ae, #78909c);
+            /* Grey gradient */
+        }
+
+        #resetButton:hover {
+            background: linear-gradient(145deg, #78909c, #607d8b);
+            /* Darker grey gradient on hover */
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Loading Indicator - No longer needed, but keeping for initial load styling consistency */
+        #loading {
+            margin-top: 2rem;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #e91e63;
+            /* Pink spinner */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Utility classes for hiding/showing elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            #output {
+                font-size: 1.1rem;
+                padding: 0.8rem 1rem;
+            }
+
+            .thought-element {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+
+            #finalMessage {
+                font-size: 2rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1.1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                /* Stack buttons on small screens */
+                gap: 1rem;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
+
 <body>
     <div class="game-container">
         <h1>Our Thought Garden</h1>
@@ -165,4 +475,5 @@
         document.addEventListener('DOMContentLoaded', initializeGame);
     </script>
 </body>
+
 </html>
