@@ -4,15 +4,17 @@ body {
     margin: 0;
     padding: 0;
     background: linear-gradient(to bottom right, #d3c1ff, #e0f7fa);
-    /* Soft pink to light blue gradient */
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    align-items: flex-start;
+    /* changed from center to allow scroll */
+    min-height: 100dvh;
+    /* mobile-friendly viewport height */
     color: #4a4a4a;
-    overflow: hidden;
-    /* Prevent scrollbars if elements slightly overflow */
+    overflow: auto;
+    /* changed from hidden to allow scroll */
 }
+
 
 /* Game Container */
 .game-container {
@@ -29,6 +31,9 @@ body {
     box-sizing: border-box;
     position: relative;
     overflow: hidden;
+    max-height: 100%;
+    overflow-y: auto;
+    margin: auto;
     /* Keep elements inside */
 }
 
@@ -67,11 +72,11 @@ h1 {
 /* Thought Elements Container */
 .thought-elements-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
     /* Flexible grid for elements */
     gap: 20px;
     /* Space between elements */
-    margin: 2rem auto;
+    margin: 3rem auto;
     max-width: 600px;
     padding: 10px;
     position: relative;
@@ -292,4 +297,8 @@ button:disabled {
         /* Stack buttons on small screens */
         gap: 1rem;
     }
+}
+
+html {
+    scroll-behavior: smooth;
 }
